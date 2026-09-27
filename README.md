@@ -107,6 +107,44 @@ print("Apple" if int(result[0][0]) == 0 else "Tomato")
 
 ---
 
+## 🖼️ Interactive Prediction (Upload Your Own Image)
+
+The notebook includes a Colab cell that lets you upload an image directly from your computer and get a live Apple/Tomato prediction — no need to point to a file path in the dataset.
+
+```python
+from google.colab import files
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+uploaded = files.upload()
+
+for filename in uploaded.keys():
+    img = cv2.imread(filename)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    img_resized = cv2.resize(img, (256, 256))
+    img_input = img_resized.reshape((1, 256, 256, 3)) / 255.0
+
+    result = model.predict(img_input)
+    label = "Apple" if result[0][0] < 0.5 else "Tomato"
+    confidence = (1 - result[0][0]) if label == "Apple" else result[0][0]
+
+    plt.imshow(img)
+    plt.axis('off')
+    plt.title(f"Prediction: {label} ({confidence*100:.2f}% confidence)")
+    plt.show()
+```
+
+**How to use it:**
+1. Run the cell — a "Choose Files" button appears.
+2. Select one or more apple/tomato images from your computer.
+3. Each image is resized to 256×256, normalized, and passed through the trained model.
+4. The image is displayed with its predicted label and confidence score.
+
+This is only available when running in **Google Colab** (`google.colab.files` is Colab-specific and won't work in a local Jupyter/VS Code environment without modification — for local use, replace `files.upload()` with a file dialog or a hardcoded path via `cv2.imread()`).
+
+---
+
 ## 📊 Results
 
 Final epoch (30/30):
